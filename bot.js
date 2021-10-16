@@ -39,3 +39,6 @@ connectDB();
 // creates a collection of commands and events
 client.commands = new Discord.Collection();
 client.events = new Discord.Collection();
+
+//login
+client.login(process.env.DISCORD_BOT_TOKEN);
