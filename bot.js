@@ -51,7 +51,7 @@ client.events = new Discord.Collection();
         file.indexOf('.js')
       );
       let cmdModule = require(path.join(file));
-      client.events.set(cmdName, cmdModule);
+      client.commands.set(cmdName, cmdModule);
     }
   });
 })();
