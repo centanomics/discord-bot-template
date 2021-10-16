@@ -43,6 +43,19 @@ const path = require('path');
 client.commands = new Discord.Collection();
 client.events = new Discord.Collection();
 
+(async function registerEvents(dir = 'commands') {
+  await glob(path.join(__dirname, dir, '**/*.js'), (err, cmdFiles) => {
+    for (let file of cmdFiles) {
+      let cmdName = file.substring(
+        file.lastIndexOf('/') + 1,
+        file.indexOf('.js')
+      );
+      let cmdModule = require(path.join(file));
+      client.events.set(cmdName, cmdModule);
+    }
+  });
+})();
+
 (async function registerEvents(dir = 'events') {
   await glob(path.join(__dirname, dir, '**/*.js'), (err, eventFiles) => {
     for (let file of eventFiles) {
@@ -52,8 +65,6 @@ client.events = new Discord.Collection();
       );
       let evtModule = require(path.join(file));
       client.events.set(evtName, evtModule);
-
-      console.log('hi', path.join(file));
 
       // creates event listener for each of the event files
       client.on(evtName, evtModule.bind(null, client));
