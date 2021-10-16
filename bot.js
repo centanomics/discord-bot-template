@@ -2,7 +2,7 @@
 require('dotenv').config();
 const express = require('express');
 const app = express();
-const port = 3000;
+const port = 4000;
 
 // Sets up express server for hosting reasons
 app.use(express.static('public'));
@@ -36,9 +36,30 @@ const client = new Discord.Client({
 // connects to database
 connectDB();
 
+const glob = require('glob');
+const path = require('path');
+
 // creates a collection of commands and events
 client.commands = new Discord.Collection();
 client.events = new Discord.Collection();
+
+(async function registerEvents(dir = 'events') {
+  await glob(path.join(__dirname, dir, '**/*.js'), (err, eventFiles) => {
+    for (let file of eventFiles) {
+      let evtName = file.substring(
+        file.lastIndexOf('/') + 1,
+        file.indexOf('.js')
+      );
+      let evtModule = require(path.join(file));
+      client.events.set(evtName, evtModule);
+
+      console.log('hi', path.join(file));
+
+      // creates event listener for each of the event files
+      client.on(evtName, evtModule.bind(null, client));
+    }
+  });
+})();
 
 //login
 client.login(process.env.DISCORD_BOT_TOKEN);
